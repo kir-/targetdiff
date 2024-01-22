@@ -30,7 +30,7 @@ def unbatch_v_traj(ligand_v_traj, n_data, ligand_cum_atoms):
 
 def sample_diffusion_ligand(model, data, num_samples, batch_size=16, device='cuda:0',
                             num_steps=None, pos_only=False, center_pos_mode='protein',
-                            sample_num_atoms='prior'):
+                            sample_num_atoms='prior', given_center_pos=[0,0,0]):
     all_pred_pos, all_pred_v = [], []
     all_pred_pos_traj, all_pred_v_traj = [], []
     all_pred_v0_traj, all_pred_vt_traj = [], []
@@ -58,8 +58,10 @@ def sample_diffusion_ligand(model, data, num_samples, batch_size=16, device='cud
                 raise ValueError
 
             # init ligand pos
+            fixed_center = torch.tensor(given_center_pos, dtype=torch.float32).to(device)
             center_pos = scatter_mean(batch.protein_pos, batch_protein, dim=0)
             batch_center_pos = center_pos[batch_ligand]
+            batch_center_pos = fixed_center.repeat(batch_center_pos.shape[0], 1)
             init_ligand_pos = batch_center_pos + torch.randn_like(batch_center_pos)
 
             # init ligand v
