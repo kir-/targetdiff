@@ -39,6 +39,9 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=100)
     parser.add_argument('--result_path', type=str, default='./outputs_pdb')
     parser.add_argument('--num_samples', type=int)
+    parser.add_argument('--center', type=lambda s: list(map(float, s.split(','))),
+                        default=[32.0, 28.0, 36.0], 
+                        help='Center of the pocket bounding box, in format x,y,z')
     args = parser.parse_args()
 
     logger = misc.get_logger('evaluate')
@@ -81,7 +84,8 @@ if __name__ == '__main__':
         num_steps=config.sample.num_steps,
         pos_only=config.sample.pos_only,
         center_pos_mode=config.sample.center_pos_mode,
-        sample_num_atoms=config.sample.sample_num_atoms
+        sample_num_atoms=config.sample.sample_num_atoms,
+        given_center_pos=args.center
     )
     result = {
         'data': data,
